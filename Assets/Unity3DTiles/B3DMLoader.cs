@@ -14,7 +14,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityGLTF.Loader;
@@ -29,13 +28,7 @@ public class B3DMLoader : ILoader
 
     }
 
-    public Stream LoadedStream
-    { 
-        get
-        {
-            return loader.LoadedStream;
-        }
-    }
+    public Stream LoadedStream => loader.LoadedStream;
 
     struct FeatureTable
     {
@@ -93,6 +86,11 @@ public class B3DMLoader : ILoader
                     Debug.LogError("Unexpected non-zero length feature table BATCH_LENGTH in b3dm: " +
                                    relativeFilePath);
                 }
+
+
+                // Perspectives : now consuming batchtable data
+                string batchTableJson = new String(br.ReadChars((int)batchTableJsonLength));
+                Debug.Log(batchTableJson);
             }
         }
     }
