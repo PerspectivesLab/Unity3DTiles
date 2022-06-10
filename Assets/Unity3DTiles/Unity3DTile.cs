@@ -12,17 +12,17 @@
  * access to foreign persons.
  */
 
+using RSG;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
-using RSG;
 using Unity3DTiles.Schema;
+using UnityEngine;
 
 namespace Unity3DTiles
 {
-    public enum Unity3DTileContentState  {
+    public enum Unity3DTileContentState
+    {
         UNLOADED = 0,   // Has never been requested
         LOADING = 1,    // Is waiting on a pending request
         PROCESSING = 2, // Request received.  Contents are being processed for rendering.  Depending on the content, it might make its own requests for external data.
@@ -41,10 +41,10 @@ namespace Unity3DTiles
     public class Unity3DTileFrameState
     {
         public int LastVisitedFrame = -1;
-        
+
         public bool InFrustumSet = false;  // Currently in view of a camera (And in this frames "Used set")
         public bool InUsedSet = false;     // should be checked with IsUsedThisFrame
-        public bool IsUsedSetLeaf = false; 
+        public bool IsUsedSetLeaf = false;
         public bool InRenderSet = false;   // This tile should be rendered this frame
         public bool InColliderSet = false; // This tile should have its collider enabled this frame
         public bool UsedLastFrame = false; // This tile was in the used set last frame
@@ -52,20 +52,14 @@ namespace Unity3DTiles
         public float PixelsToCameraCenter = float.MaxValue;
         public float ScreenSpaceError = 0;
         public float Priority = float.MaxValue; // lower value means higher priority
-        
+
         public void MarkUsed()
         {
             InUsedSet = true;
         }
-        
-        public bool IsUsedThisFrame
-        {
-            get
-            {
-                return InUsedSet && LastVisitedFrame == Time.frameCount;
-            }
-        }
-        
+
+        public bool IsUsedThisFrame => InUsedSet && LastVisitedFrame == Time.frameCount;
+
         public void Reset()
         {
             if (LastVisitedFrame == Time.frameCount)
@@ -139,23 +133,11 @@ namespace Unity3DTiles
 
         public Unity3DTilesetStyle Style;
 
-        public float GeometricError
-        {
-            get { return (float)schemaTile.GeometricError; }
-        }
+        public float GeometricError => (float)schemaTile.GeometricError / 5f;
 
-        public Schema.TileRefine Refine
-        {
-            get { return schemaTile.Refine.Value; }
-        }
-        
-        public bool HasEmptyContent
-        {
-            get
-            {
-                return schemaTile.Content == null;
-            }
-        }
+        public Schema.TileRefine Refine => schemaTile.Refine.Value;
+
+        public bool HasEmptyContent => schemaTile.Content == null;
 
         public string ContentUrl { get; private set; }
 
@@ -164,7 +146,7 @@ namespace Unity3DTiles
             get
             {
                 string ext = Path.GetExtension(UrlUtils.RemoveQuery(ContentUrl)).ToLower();
-                if(ext.Equals(".b3dm"))
+                if (ext.Equals(".b3dm"))
                 {
                     return Unity3DTileContentType.B3DM;
                 }
@@ -245,7 +227,7 @@ namespace Unity3DTiles
             }
 
             Parent = parent;
-            
+
             if (HasEmptyContent)
             {
                 ContentState = Unity3DTileContentState.READY;
@@ -303,7 +285,7 @@ namespace Unity3DTiles
             {
                 return;
             }
-                
+
             Promise<bool> finished = new Promise<bool>();
             finished.Then((success) =>
             {
@@ -318,17 +300,28 @@ namespace Unity3DTiles
                 else if (!duplicate)
                 {
                     UnloadContent();
-                }                                             
+                }
             });
-            
+
             Promise started = new Promise();
             started.Then(() =>
             {
                 GameObject go = new GameObject(Id);
                 go.transform.parent = Tileset.Behaviour.transform;
+                //go.transform.localPosition =
+                //    new Vector3(computedTransform.m03, computedTransform.m13, computedTransform.m23);
+                //go.transform.localRotation = computedTransform.rotation;
+
+                // Perspectives : convert Cesium 3D tiles CRS to Unity CRS 
+                // Unity CRS is left handed Y Up
+                // Cesium 3D tiles CRS is right handed Z Up (https://github.com/CesiumGS/3d-tiles/tree/main/specification#coordinate-reference-system-crs)
+
+                // x = -x / y = z / z = y
                 go.transform.localPosition =
-                    new Vector3(computedTransform.m03, computedTransform.m13, computedTransform.m23);
-                go.transform.localRotation = computedTransform.rotation;
+                    new Vector3(-computedTransform.m03, computedTransform.m23, computedTransform.m13);
+                // 180 degrees rotation on Y axis
+                go.transform.localRotation = computedTransform.rotation * Quaternion.AngleAxis(180, Vector3.up);
+
                 go.transform.localScale = computedTransform.lossyScale;
                 go.layer = Tileset.Behaviour.gameObject.layer;
                 go.SetActive(false);
@@ -336,7 +329,7 @@ namespace Unity3DTiles
                 info.Tile = this;
                 info.FrameState = FrameState;
                 Content = new Unity3DTileContent(go);
-                
+
                 if (ContentType == Unity3DTileContentType.B3DM)
                 {
                     B3DMComponent b3dmCo = go.AddComponent<B3DMComponent>();
@@ -359,7 +352,7 @@ namespace Unity3DTiles
                     pntsCo.DownloadOnStart = false;
                     Tileset.Behaviour.StartCoroutine(pntsCo.Download(finished));
                 }
-                
+
             });
 
             Tileset.RequestManager.EnqueRequest(new Request(this, started, finished));
@@ -394,7 +387,7 @@ namespace Unity3DTiles
                 // This does not take into account the coodinate frame of the glTF files and gltfUpAxis
                 // https://github.com/AnalyticalGraphicsInc/3d-tiles/issues/280#issuecomment-359980111
                 center.x *= -1;
-                halfAxesX.x *= - 1;
+                halfAxesX.x *= -1;
                 halfAxesY.x *= -1;
                 halfAxesZ.x *= -1;
 

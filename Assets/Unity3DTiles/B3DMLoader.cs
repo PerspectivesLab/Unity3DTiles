@@ -90,7 +90,6 @@ public class B3DMLoader : ILoader
 
                 // Perspectives : now consuming batchtable data
                 string batchTableJson = new String(br.ReadChars((int)batchTableJsonLength));
-                Debug.Log(batchTableJson);
             }
         }
     }

@@ -11,8 +11,6 @@
  * before exporting such information to foreign countries or providing 
  * access to foreign persons.
  */
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityGLTF.Extensions;
 
@@ -36,6 +34,7 @@ namespace Unity3DTiles.Schema
             {
                 return Matrix4x4.identity;
             }
+
             var m = new Matrix4x4();
             m.SetColumn(0, new Vector4((float)tile.Transform[0],
                                        (float)tile.Transform[1],
