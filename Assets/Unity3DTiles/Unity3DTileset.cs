@@ -12,17 +12,14 @@
  * access to foreign persons.
  */
 
+using RSG;
 using System;
-using System.Linq;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
-using RSG;
-using UnityGLTF.Loader;
 using UnityGLTF.Extensions;
+using UnityGLTF.Loader;
 
 namespace Unity3DTiles
 {
@@ -32,13 +29,13 @@ namespace Unity3DTiles
     /// </summary>
     public class Unity3DTileset
     {
-        public Unity3DTilesetOptions TilesetOptions { get; private set;}
+        public Unity3DTilesetOptions TilesetOptions { get; private set; }
 
         public Unity3DTile Root { get; private set; }
 
         public TileCache TileCache { get; private set; }
 
-        public RequestManager RequestManager { get; private set;}
+        public RequestManager RequestManager { get; private set; }
 
         public Queue<Unity3DTile> ProcessingQueue { get; private set; }
 
@@ -54,7 +51,7 @@ namespace Unity3DTiles
 
         public Unity3DTilesetTraversal Traversal { get; private set; }
 
-        public bool Ready { get { return Root != null; } }
+        public bool Ready => Root != null;
 
         private Schema.Tileset schemaTileset;
 
@@ -88,6 +85,7 @@ namespace Unity3DTiles
             DeepestDepth = 0;
 
             string url = UrlUtils.ReplaceDataProtocol(tilesetOptions.Url);
+            Debug.Log($"Loading tileset from {url}");
             string tilesetUrl = url;
             if (!UrlUtils.GetLastPathSegment(url).EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
@@ -119,7 +117,7 @@ namespace Unity3DTiles
                 if (error == null || error == "")
                 {
                     promise.Resolve(text);
-                    
+
                 }
                 else
                 {
@@ -144,17 +142,19 @@ namespace Unity3DTiles
                 return null;
             }
             // Add tileset version to base path
-            bool hasVersionQuery = new Regex(@"/[?&]v=/").IsMatch(tilesetUrl);
-            if (!hasVersionQuery && !new Uri(tilesetUrl).IsFile)
-            {
-                string version = "0.0";
-                if (tileset.Asset.TilesetVersion != null)
-                {
-                    version = tileset.Asset.TilesetVersion;
-                }
-                string versionQuery = "v=" + version;
-                tilesetUrl = UrlUtils.SetQuery(tilesetUrl, versionQuery);
-            }
+            //Perspectives : Don't need this part
+            //bool hasVersionQuery = new Regex(@"/[?&]v=/").IsMatch(tilesetUrl);
+            //if (!hasVersionQuery && !new Uri(tilesetUrl).IsFile)
+            //{
+            //    string version = "0.0";
+            //    if (tileset.Asset.TilesetVersion != null)
+            //    {
+            //        version = tileset.Asset.TilesetVersion;
+            //    }
+            //    string versionQuery = "v=" + version;
+            //    tilesetUrl = UrlUtils.SetQuery(tilesetUrl, versionQuery);
+            //}
+
             // A tileset.json referenced from a tile may exist in a different directory than the root tileset.
             // Get the basePath relative to the external tileset.
             string basePath = UrlUtils.GetBaseUri(tilesetUrl);
