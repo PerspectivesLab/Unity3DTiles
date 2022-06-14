@@ -70,10 +70,10 @@ public class B3DMLoader : ILoader
                     Debug.LogError("Unexpected non-zero length binary feature table in b3dm: " + relativeFilePath);
                 }
                 UInt32 batchTableJsonLength = br.ReadUInt32();
-                if (batchTableJsonLength != 0)
-                {
-                    Debug.LogError("Unexpected non-zero length JSON batch table in b3dm: " + relativeFilePath);
-                }
+                //if (batchTableJsonLength != 0)
+                //{
+                //    Debug.LogError("Unexpected non-zero length JSON batch table in b3dm: " + relativeFilePath);
+                //}
                 UInt32 batchTableBinaryLength = br.ReadUInt32();
                 if (batchTableBinaryLength != 0)
                 {
@@ -81,11 +81,11 @@ public class B3DMLoader : ILoader
                 }
                 string featureTableJson = new String(br.ReadChars((int)featureTableJsonLength));
                 FeatureTable ft = JsonConvert.DeserializeObject<FeatureTable>(featureTableJson);
-                if (ft.BATCH_LENGTH != 0)
-                {
-                    Debug.LogError("Unexpected non-zero length feature table BATCH_LENGTH in b3dm: " +
-                                   relativeFilePath);
-                }
+                //if (ft.BATCH_LENGTH != 0)
+                //{
+                //    Debug.LogError("Unexpected non-zero length feature table BATCH_LENGTH in b3dm: " +
+                //                   relativeFilePath);
+                //}
 
 
                 // Perspectives : now consuming batchtable data

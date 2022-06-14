@@ -133,7 +133,8 @@ namespace Unity3DTiles
 
         public Unity3DTilesetStyle Style;
 
-        public float GeometricError => (float)schemaTile.GeometricError / 5f;
+        // Perspectives : Hard coded geometric error divide factor
+        public float GeometricError => (float)schemaTile.GeometricError / 10f;
 
         public Schema.TileRefine Refine => schemaTile.Refine.Value;
 

@@ -85,7 +85,7 @@ namespace Unity3DTiles
             DeepestDepth = 0;
 
             string url = UrlUtils.ReplaceDataProtocol(tilesetOptions.Url);
-            Debug.Log($"Loading tileset from {url}");
+
             string tilesetUrl = url;
             if (!UrlUtils.GetLastPathSegment(url).EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
