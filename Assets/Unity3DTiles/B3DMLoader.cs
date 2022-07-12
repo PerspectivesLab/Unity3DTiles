@@ -12,8 +12,9 @@
  * access to foreign persons.
  */
 using Newtonsoft.Json;
-using System;
+using Newtonsoft.Json.Linq;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityGLTF.Loader;
@@ -27,6 +28,8 @@ public class B3DMLoader : ILoader
         this.loader = loader;
 
     }
+
+    public Dictionary<string, List<JToken>> BatchTable = new Dictionary<string, List<JToken>>();
 
     public Stream LoadedStream => loader.LoadedStream;
 
@@ -48,38 +51,42 @@ public class B3DMLoader : ILoader
             if (Path.GetExtension(filename).ToLower() == ".b3dm")
             {
                 BinaryReader br = new BinaryReader(loader.LoadedStream);
-                UInt32 magic = br.ReadUInt32();
+                uint magic = br.ReadUInt32();
                 if (magic != 0x6D643362)
                 {
                     Debug.LogError("Unsupported magic number in b3dm: " + magic + " " + relativeFilePath);
                 }
-                UInt32 version = br.ReadUInt32();
+                uint version = br.ReadUInt32();
                 if (version != 1)
                 {
                     Debug.LogError("Unsupported version number in b3dm: " + version + " " + relativeFilePath);
                 }
                 br.ReadUInt32(); // Total length
-                UInt32 featureTableJsonLength = br.ReadUInt32();
+                uint featureTableJsonLength = br.ReadUInt32();
+                //Debug.Log($"featureTableJsonLength is {featureTableJsonLength}");
                 if (featureTableJsonLength == 0)
                 {
                     Debug.LogError("Unexpected zero length JSON feature table in b3dm: " + relativeFilePath);
                 }
-                UInt32 featureTableBinaryLength = br.ReadUInt32();
+                uint featureTableBinaryLength = br.ReadUInt32();
+                //Debug.Log($"featureTableBinaryLength is {featureTableBinaryLength}");
                 if (featureTableBinaryLength != 0)
                 {
                     Debug.LogError("Unexpected non-zero length binary feature table in b3dm: " + relativeFilePath);
                 }
-                UInt32 batchTableJsonLength = br.ReadUInt32();
+                uint batchTableJsonLength = br.ReadUInt32();
+                //Debug.Log($"batchTableJsonLength is {batchTableJsonLength}");
                 //if (batchTableJsonLength != 0)
                 //{
                 //    Debug.LogError("Unexpected non-zero length JSON batch table in b3dm: " + relativeFilePath);
                 //}
-                UInt32 batchTableBinaryLength = br.ReadUInt32();
-                if (batchTableBinaryLength != 0)
-                {
-                    Debug.LogError("Unexpected non-zero length binary batch table in b3dm: " + relativeFilePath);
-                }
-                string featureTableJson = new String(br.ReadChars((int)featureTableJsonLength));
+                uint batchTableBinaryLength = br.ReadUInt32();
+                //Debug.Log($"batchTableBinaryLength is {batchTableBinaryLength}");
+                //if (batchTableBinaryLength != 0)
+                //{
+                //    Debug.LogError("Unexpected non-zero length binary batch table in b3dm: " + relativeFilePath);
+                //}
+                string featureTableJson = new string(br.ReadChars((int)featureTableJsonLength));
                 FeatureTable ft = JsonConvert.DeserializeObject<FeatureTable>(featureTableJson);
                 //if (ft.BATCH_LENGTH != 0)
                 //{
@@ -89,8 +96,12 @@ public class B3DMLoader : ILoader
 
 
                 // Perspectives : now consuming batchtable data
-                string batchTableJson = new String(br.ReadChars((int)batchTableJsonLength));
+                string batchTableJson = new string(br.ReadChars((int)batchTableJsonLength));
+                BatchTable = JsonConvert.DeserializeObject<Dictionary<string, List<JToken>>>(batchTableJson);
             }
         }
+
+
+
     }
 }

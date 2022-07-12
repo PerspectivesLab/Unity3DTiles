@@ -3,9 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Text.RegularExpressions;
-using UnityEngine;
 using UnityEngine.Networking;
 using UnityGLTF.Loader;
 
@@ -217,10 +214,11 @@ namespace Unity3DTiles
 #else
             var downloadHandler = new DownloadHandlerBuffer();
 #endif
-            using (UnityWebRequest www = new UnityWebRequest(uri, "GET", downloadHandler, null)) {
+            using (UnityWebRequest www = new UnityWebRequest(uri, "GET", downloadHandler, null))
+            {
 
                 www.timeout = 5000;
-                
+
 #if UNITY_2017_2_OR_NEWER
                 yield return www.SendWebRequest();
 #else
@@ -234,7 +232,7 @@ namespace Unity3DTiles
                 {
                     throw new Exception("Stream is larger than can be copied into byte array");
                 }
-                if (www.isNetworkError || www.isHttpError)
+                if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
                 {
                     LoadedStream = new MemoryStream(new byte[] { }, 0, 0, true, true);
                 }

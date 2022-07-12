@@ -134,7 +134,7 @@ namespace Unity3DTiles
         public Unity3DTilesetStyle Style;
 
         // Perspectives : Hard coded geometric error divide factor
-        public float GeometricError => (float)schemaTile.GeometricError / 10f;
+        public float GeometricError => (float)schemaTile.GeometricError / 30.48f;
 
         public Schema.TileRefine Refine => schemaTile.Refine.Value;
 
@@ -297,6 +297,7 @@ namespace Unity3DTiles
                 {
                     ContentState = Unity3DTileContentState.PROCESSING;
                     Tileset.ProcessingQueue.Enqueue(this);
+
                 }
                 else if (!duplicate)
                 {
@@ -353,7 +354,6 @@ namespace Unity3DTiles
                     pntsCo.DownloadOnStart = false;
                     Tileset.Behaviour.StartCoroutine(pntsCo.Download(finished));
                 }
-
             });
 
             Tileset.RequestManager.EnqueRequest(new Request(this, started, finished));
@@ -379,10 +379,10 @@ namespace Unity3DTiles
             if (boundingVolume.Box.Count == 12)
             {
                 var box = boundingVolume.Box;
-                Vector3 center = new Vector3((float)box[0], (float)box[1], (float)box[2]);
-                Vector3 halfAxesX = new Vector3((float)box[3], (float)box[4], (float)box[5]);
-                Vector3 halfAxesY = new Vector3((float)box[6], (float)box[7], (float)box[8]);
-                Vector3 halfAxesZ = new Vector3((float)box[9], (float)box[10], (float)box[11]);
+                Vector3 center = new Vector3((float)box[0], (float)box[1], (float)box[2]) * 100f;
+                Vector3 halfAxesX = new Vector3((float)box[3], (float)box[4], (float)box[5]) * 100f;
+                Vector3 halfAxesY = new Vector3((float)box[6], (float)box[7], (float)box[8]) * 100f;
+                Vector3 halfAxesZ = new Vector3((float)box[9], (float)box[10], (float)box[11]) * 100f;
 
                 // TODO: Review this coordinate frame change
                 // This does not take into account the coodinate frame of the glTF files and gltfUpAxis
